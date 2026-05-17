@@ -1421,11 +1421,13 @@ h3 {
       ============================================================
     -->
       <div class="hero-visual">
-        <video src="images/hero-demo.mov"
-               autoplay loop muted playsinline
-               poster="images/hero-poster.jpg"
-               style="width:100%; border-radius:16px;"></video>
+        <video autoplay loop muted playsinline preload="auto"
+               style="width:100%; border-radius:16px;">
+          <source src="images/hero-demo.mp4" type="video/mp4">
+          <source src="images/hero-demo.mov" type="video/quicktime">
+        </video>
       </div>
+  </div>
 </section>
 
 <!-- ==================== Why it exists ==================== -->
