@@ -1380,7 +1380,7 @@ h3 {
       <a href="#faq">FAQ</a>
     </nav>
     <a href="https://apps.apple.com/us/app/sidedoor-tasks/id6759468350?mt=12" class="btn btn-primary btn-sm">
-      Get on the App Store
+      Download from App Store
     </a>
   </div>
 </header>
@@ -1726,7 +1726,7 @@ h3 {
       <div class="prose">
         <p>SideDoor is a small family of Mac utilities being built around the same idea — a quick way into the Apple apps you already use, without breaking your focus.</p>
         <p>Calendar, Files, and Contacts are next, with more in the queue.</p>
-        <!-- <p>Drop your email if you want to know when each one ships. No newsletter, no marketing list, no spam.</p> -->
+        <p>Drop your email if you want to know when each one ships. No newsletter, no marketing list, no spam.</p>
       </div>
     </div>
 
@@ -1747,6 +1747,16 @@ h3 {
       it back to the repo.
       ============================================================
     -->
+      <form class="notify-form reveal"
+      id="notify-form"
+      action="https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec"
+      method="POST">
+  <input type="email" name="email" class="notify-input" placeholder="your email" required aria-label="Your email address">
+  <input type="hidden" name="_subject" value="New SideDoor signup">
+  <!-- Honeypot: hidden from humans, bots fill it in and get silently dropped -->
+  <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
+  <button type="submit" class="btn btn-primary btn-lg">Notify me</button>
+</form>
     <!-- <form class="notify-form reveal"
           id="notify-form"
           action="https://formspree.io/f/YOUR_FORM_ID"
