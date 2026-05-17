@@ -1,1183 +1,1892 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SideDoor — A small family of keyboard-first apps for macOS</title>
-  <meta name="description" content="SideDoor Tasks is a menu bar companion for Apple Reminders. Summon a panel with one shortcut, capture or edit a task, and dismiss it without touching the mouse. $4.99 in the Mac App Store.">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SideDoor Tasks — Apple Reminders. Faster.</title>
+<meta name="description" content="A keyboard-first floating panel for Apple Reminders on Mac. Capture, organize, edit, and complete reminders without opening the full Reminders app.">
+<meta property="og:title" content="SideDoor Tasks — Apple Reminders. Faster.">
+<meta property="og:description" content="A keyboard-first floating panel for Apple Reminders on Mac.">
+<meta property="og:type" content="website">
 
-  <!-- Open Graph / Social -->
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="SideDoor Tasks — A keyboard shortcut to Apple Reminders">
-  <meta property="og:description" content="A menu bar companion for Apple Reminders. One shortcut, one panel, no mouse. $4.99 in the Mac App Store.">
-  <meta property="og:image" content="https://sidedoor.app/og.png">
-  <meta property="og:url" content="https://sidedoor.app">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="SideDoor Tasks — A keyboard shortcut to Apple Reminders">
-  <meta name="twitter:description" content="One shortcut. One panel. No mouse.">
-  <meta name="twitter:image" content="https://sidedoor.app/og.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f4a544'/%3E%3Cpath d='M9 16.5l4 4 10-10' stroke='%2314110d' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 
-  <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@300,400,500,600,700,800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-  <!-- Fonts: Fraunces (display), IBM Plex Sans (body), IBM Plex Mono (keys) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================
+   Variables & Reset
+   ============================ */
+:root {
+  --bg-base: #0a0908;
+  --bg-elevated: #14110d;
+  --bg-elevated-2: #1d1813;
+  --bg-card: #16130f;
 
-  <style>
-    :root {
-      --bg: #0E0B08;
-      --bg-elev: #161210;
-      --bg-elev-2: #1E1815;
-      --line: rgba(244, 236, 224, 0.08);
-      --line-strong: rgba(244, 236, 224, 0.16);
-      --text: #F4ECE0;
-      --text-dim: #B8AFA4;
-      --text-dimmer: #8A8077;
-      --amber: #E8A33D;
-      --amber-bright: #FFC97A;
-      --amber-soft: rgba(232, 163, 61, 0.12);
-      --amber-glow: rgba(255, 201, 122, 0.18);
-      --maxw: 1180px;
-      --gutter: clamp(20px, 4vw, 48px);
-      --serif: "Fraunces", "Georgia", serif;
-      --sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
-      --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
-    }
+  --text-primary: #f5f1ea;
+  --text-secondary: #a39a8d;
+  --text-tertiary: #6f685e;
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+  --accent: #f4a544;
+  --accent-hover: #f7b76a;
+  --accent-dim: rgba(244, 165, 68, 0.12);
+  --accent-glow: rgba(244, 165, 68, 0.18);
 
-    html { scroll-behavior: smooth; }
+  --border: rgba(245, 241, 234, 0.07);
+  --border-strong: rgba(245, 241, 234, 0.13);
+  --border-bright: rgba(245, 241, 234, 0.22);
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
-      font-weight: 400;
-      font-size: 17px;
-      line-height: 1.55;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      overflow-x: hidden;
-    }
+  --shadow-card: 0 1px 0 rgba(255,255,255,0.04) inset, 0 30px 60px -30px rgba(0,0,0,0.6);
+  --shadow-panel:
+    0 0 0 1px rgba(255,255,255,0.06),
+    0 1px 0 rgba(255,255,255,0.08) inset,
+    0 30px 60px -20px rgba(0,0,0,0.7),
+    0 60px 120px -30px rgba(0,0,0,0.5);
 
-    /* Subtle grain texture across the whole page */
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 1;
-      opacity: 0.035;
-      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
-      mix-blend-mode: overlay;
-    }
+  --font-display: 'Switzer', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Switzer', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
-    /* Faint "door crack" of light on the right side of the page */
-    body::after {
-      content: "";
-      position: fixed;
-      top: 0;
-      right: -200px;
-      width: 600px;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 0;
-      background: radial-gradient(ellipse 300px 80vh at right, var(--amber-glow), transparent 70%);
-      opacity: 0.5;
-    }
+  --container-max: 1180px;
+  --container-narrow: 760px;
 
-    a { color: inherit; text-decoration: none; }
+  --section-padding-y: clamp(90px, 14vw, 160px);
+}
 
-    .wrap {
-      max-width: var(--maxw);
-      margin: 0 auto;
-      padding: 0 var(--gutter);
-      position: relative;
-      z-index: 2;
-    }
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; padding: 0; }
 
-    /* ====== HEADER ====== */
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      backdrop-filter: blur(16px) saturate(140%);
-      -webkit-backdrop-filter: blur(16px) saturate(140%);
-      background: rgba(14, 11, 8, 0.7);
-      border-bottom: 1px solid transparent;
-      transition: border-color 0.3s;
-    }
-    header.scrolled { border-bottom-color: var(--line); }
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
 
-    .nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 18px 0;
-    }
+body {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--text-primary);
+  background: var(--bg-base);
+  overflow-x: hidden;
+  font-feature-settings: "ss01", "ss02", "cv01", "cv11";
+}
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-family: var(--serif);
-      font-weight: 500;
-      font-size: 18px;
-      letter-spacing: -0.01em;
-    }
-    .brand-mark {
-      width: 26px;
-      height: 26px;
-      flex-shrink: 0;
-    }
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 1200px 600px at 50% -200px, rgba(244, 165, 68, 0.08), transparent 60%),
+    radial-gradient(ellipse 800px 400px at 80% 30%, rgba(244, 165, 68, 0.03), transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
 
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 32px;
-    }
-    .nav-links a {
-      font-size: 14px;
-      color: var(--text-dim);
-      transition: color 0.2s;
-    }
-    .nav-links a:hover { color: var(--text); }
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 0.96 0 0 0 0 0.94 0 0 0 0 0.91 0 0 0 0.045 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 1;
+}
 
-    .btn-app-store {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 16px;
-      background: var(--amber);
-      color: #1A1108;
-      border-radius: 999px;
-      font-size: 14px;
-      font-weight: 500;
-      transition: all 0.2s ease;
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset, 0 8px 24px -8px rgba(232, 163, 61, 0.4);
-    }
-    .btn-app-store:hover {
-      background: var(--amber-bright);
-      transform: translateY(-1px);
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.1) inset, 0 12px 28px -8px rgba(232, 163, 61, 0.5);
-    }
-    .btn-app-store svg { width: 14px; height: 14px; }
+main, header, footer { position: relative; z-index: 2; }
 
-    @media (max-width: 720px) {
-      .nav-links .hide-mobile { display: none; }
-    }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; background: none; border: 0; color: inherit; }
+input { font: inherit; }
+img, svg, video { display: block; max-width: 100%; }
+ul, ol { list-style: none; }
 
-    /* ====== HERO ====== */
-    .hero {
-      padding: clamp(70px, 12vh, 140px) 0 clamp(60px, 10vh, 100px);
-      text-align: center;
-      position: relative;
-    }
+::selection { background: var(--accent); color: var(--bg-base); }
 
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      font-family: var(--mono);
-      font-size: 11px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--amber);
-      padding: 6px 14px;
-      border: 1px solid var(--amber-soft);
-      border-radius: 999px;
-      background: rgba(232, 163, 61, 0.04);
-      opacity: 0;
-      animation: fadeUp 0.7s 0.1s ease forwards;
-    }
-    .eyebrow .pulse {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--amber);
-      box-shadow: 0 0 8px var(--amber);
-      animation: pulse 2s infinite;
-    }
+/* ============================
+   Layout primitives
+   ============================ */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: clamp(20px, 5vw, 48px);
+}
 
-    h1.headline {
-      font-family: var(--serif);
-      font-weight: 400;
-      font-size: clamp(40px, 6.5vw, 78px);
-      line-height: 1.02;
-      letter-spacing: -0.025em;
-      margin: 28px auto 24px;
-      max-width: 14ch;
-      opacity: 0;
-      animation: fadeUp 0.8s 0.25s ease forwards;
-    }
-    h1.headline em {
-      font-style: italic;
-      font-weight: 400;
-      color: var(--amber-bright);
-    }
+.container.narrow { max-width: var(--container-narrow); }
 
-    .hero-sub {
-      font-size: clamp(17px, 1.6vw, 20px);
-      line-height: 1.5;
-      color: var(--text-dim);
-      max-width: 56ch;
-      margin: 0 auto;
-      opacity: 0;
-      animation: fadeUp 0.8s 0.4s ease forwards;
-    }
-    .hero-sub strong { color: var(--text); font-weight: 500; }
+.section {
+  padding-block: var(--section-padding-y);
+  position: relative;
+}
 
-    .key-strip {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      margin: 36px 0 40px;
-      opacity: 0;
-      animation: fadeUp 0.8s 0.55s ease forwards;
-    }
+.section-header {
+  max-width: 760px;
+  margin-bottom: 64px;
+  text-align: center;
+  margin-inline: auto;
+}
 
-    .key {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 38px;
-      height: 38px;
-      padding: 0 12px;
-      background: linear-gradient(180deg, #2a2320, #1a1512);
-      border: 1px solid var(--line-strong);
-      border-radius: 7px;
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.06),
-        0 2px 0 #0a0806,
-        0 4px 10px rgba(0,0,0,0.4);
-      font-family: var(--mono);
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text);
-    }
-    .key.wide { padding: 0 18px; min-width: auto; }
-    .key-plus { color: var(--text-dimmer); font-family: var(--mono); font-size: 12px; }
+.section-header.center { text-align: center; margin-inline: auto; }
 
-    .cta-row {
-      display: inline-flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      justify-content: center;
-      opacity: 0;
-      animation: fadeUp 0.8s 0.7s ease forwards;
-    }
+.section-intro {
+  color: var(--text-secondary);
+  font-size: 18px;
+  line-height: 1.6;
+  margin-top: 20px;
+  margin-inline: auto;
+  max-width: 640px;
+}
 
-    .btn-primary, .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 22px;
-      border-radius: 999px;
-      font-size: 15px;
-      font-weight: 500;
-      transition: all 0.2s ease;
-      cursor: pointer;
-    }
-    .btn-primary {
-      background: var(--amber);
-      color: #1A1108;
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset, 0 12px 32px -8px rgba(232, 163, 61, 0.45);
-    }
-    .btn-primary:hover {
-      background: var(--amber-bright);
-      transform: translateY(-1px);
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.1) inset, 0 16px 40px -8px rgba(232, 163, 61, 0.55);
-    }
-    .btn-secondary {
-      color: var(--text);
-      background: transparent;
-      border: 1px solid var(--line-strong);
-    }
-    .btn-secondary:hover {
-      background: rgba(244, 236, 224, 0.04);
-      border-color: var(--text-dim);
-    }
-    .btn-primary svg, .btn-secondary svg { width: 16px; height: 16px; }
+.section-header.center .section-intro { margin-inline: auto; }
 
-    /* Stage = the framed hero visual */
-    .stage {
-      margin-top: clamp(60px, 8vh, 90px);
-      position: relative;
-      opacity: 0;
-      animation: fadeUp 1s 0.9s ease forwards;
-    }
-    .stage::before {
-      content: "";
-      position: absolute;
-      inset: -10% -5% auto;
-      height: 70%;
-      background: radial-gradient(ellipse at center, var(--amber-glow), transparent 60%);
-      filter: blur(40px);
-      z-index: -1;
-      opacity: 0.6;
-    }
-    .stage-frame {
-      position: relative;
-      aspect-ratio: 16 / 10;
-      background: var(--bg-elev);
-      border: 1px solid var(--line-strong);
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow:
-        0 1px 0 rgba(255,255,255,0.04) inset,
-        0 40px 80px -20px rgba(0,0,0,0.6),
-        0 24px 48px -16px rgba(232, 163, 61, 0.1);
-    }
-    .stage-placeholder {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      background: linear-gradient(135deg, var(--bg-elev), var(--bg-elev-2));
-      color: var(--text-dim);
-      font-family: var(--mono);
-      font-size: 12px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-    .stage-placeholder .ph-icon {
-      width: 56px; height: 56px;
-      border: 1px dashed var(--line-strong);
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--amber);
-      font-family: var(--serif);
-      font-style: italic;
-      font-size: 14px;
-      text-transform: none;
-      letter-spacing: 0;
-    }
-    .stage-placeholder .ph-label { color: var(--text); font-size: 13px; }
-    .stage-placeholder .ph-detail { color: var(--text-dimmer); font-size: 11px; max-width: 38ch; text-align: center; line-height: 1.6; text-transform: none; letter-spacing: 0; font-family: var(--sans); }
+.section-intro + .section-intro { margin-top: 14px; }
 
-    /* ====== SECTIONS GENERAL ====== */
-    section {
-      padding: clamp(80px, 12vh, 140px) 0;
-      position: relative;
-    }
+/* ============================
+   Typography
+   ============================ */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
 
-    .section-eyebrow {
-      font-family: var(--mono);
-      font-size: 11px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--amber);
-      margin-bottom: 18px;
-    }
+.eyebrow::before,
+.eyebrow::after {
+  content: '';
+  width: 22px;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.6;
+}
 
-    .section-title {
-      font-family: var(--serif);
-      font-weight: 400;
-      font-size: clamp(32px, 4vw, 52px);
-      line-height: 1.08;
-      letter-spacing: -0.02em;
-      max-width: 22ch;
-    }
-    .section-title em { font-style: italic; color: var(--amber-bright); font-weight: 400; }
+h1, h2, h3 {
+  font-family: var(--font-display);
+  color: var(--text-primary);
+  letter-spacing: -0.025em;
+  font-weight: 700;
+  line-height: 1.05;
+}
 
-    .section-sub {
-      font-size: clamp(16px, 1.3vw, 19px);
-      line-height: 1.55;
-      color: var(--text-dim);
-      max-width: 56ch;
-      margin-top: 18px;
-    }
+h1 {
+  font-size: clamp(2.75rem, 7vw, 5.25rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
 
-    /* ====== MANIFESTO ====== */
-    .manifesto {
-      padding: clamp(70px, 10vh, 110px) 0;
-      border-top: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-    }
-    .manifesto-text {
-      font-family: var(--serif);
-      font-style: italic;
-      font-weight: 400;
-      font-size: clamp(22px, 2.6vw, 32px);
-      line-height: 1.45;
-      letter-spacing: -0.015em;
-      color: var(--text);
-      max-width: 28ch;
-      margin: 0 auto;
-      text-align: center;
-    }
-    .manifesto-text .accent { color: var(--amber-bright); font-style: italic; }
-    .manifesto-text .quiet { color: var(--text-dim); }
+h2 {
+  font-size: clamp(2rem, 4.5vw, 3.25rem);
+  letter-spacing: -0.03em;
+}
 
-    /* ====== FEATURES (alternating layout) ====== */
-    .features {
-      display: flex;
-      flex-direction: column;
-      gap: clamp(80px, 12vh, 140px);
-    }
+h2 em {
+  font-style: italic;
+  font-weight: inherit;
+  color: var(--accent);
+}
 
-    .feature {
-      display: grid;
-      grid-template-columns: 1fr 1.15fr;
-      gap: clamp(40px, 6vw, 88px);
-      align-items: center;
-    }
-    .feature.reverse {
-      grid-template-columns: 1.15fr 1fr;
-    }
-    .feature.reverse .feature-text { order: 2; }
-    .feature.reverse .feature-visual { order: 1; }
+h3 {
+  font-size: 1.25rem;
+  letter-spacing: -0.018em;
+  font-weight: 600;
+  line-height: 1.25;
+}
 
-    .feature-number {
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--amber);
-      letter-spacing: 0.1em;
-      margin-bottom: 14px;
-    }
-    .feature h3 {
-      font-family: var(--serif);
-      font-weight: 400;
-      font-size: clamp(26px, 2.8vw, 36px);
-      line-height: 1.12;
-      letter-spacing: -0.02em;
-      margin-bottom: 16px;
-    }
-    .feature h3 em { font-style: italic; color: var(--amber-bright); }
-    .feature-text p {
-      color: var(--text-dim);
-      font-size: 16px;
-      line-height: 1.6;
-      max-width: 44ch;
-    }
-    .feature-text p + p { margin-top: 14px; }
-    .feature-text kbd {
-      font-family: var(--mono);
-      font-size: 12px;
-      padding: 2px 7px;
-      background: var(--bg-elev);
-      border: 1px solid var(--line-strong);
-      border-radius: 5px;
-      box-shadow: inset 0 -1px 0 rgba(0,0,0,0.4);
-      color: var(--text);
-      white-space: nowrap;
-    }
+.accent-text { color: var(--accent); }
 
-    .feature-visual {
-      position: relative;
-    }
-    .visual-frame {
-      aspect-ratio: 4 / 3;
-      background: var(--bg-elev);
-      border: 1px solid var(--line-strong);
-      border-radius: 14px;
-      overflow: hidden;
-      position: relative;
-      box-shadow: 0 30px 60px -20px rgba(0,0,0,0.5);
-    }
-    .visual-frame.tall { aspect-ratio: 3 / 4; }
-    .visual-frame.wide { aspect-ratio: 16 / 10; }
-    .visual-placeholder {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      background: linear-gradient(135deg, var(--bg-elev), var(--bg-elev-2));
-      padding: 20px;
-      text-align: center;
-    }
-    .vp-label {
-      font-family: var(--mono);
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--amber);
-    }
-    .vp-name { font-family: var(--serif); font-size: 18px; color: var(--text); }
-    .vp-desc { font-size: 12px; color: var(--text-dimmer); max-width: 32ch; line-height: 1.5; }
+.prose p {
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
 
-    @media (max-width: 820px) {
-      .feature, .feature.reverse {
-        grid-template-columns: 1fr;
-        gap: 32px;
-      }
-      .feature.reverse .feature-text { order: 1; }
-      .feature.reverse .feature-visual { order: 2; }
-    }
+.prose p + p { margin-top: 20px; }
 
-    /* ====== PRICING ====== */
-    .pricing-wrap {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: clamp(32px, 5vw, 72px);
-      align-items: center;
-    }
-    @media (max-width: 820px) {
-      .pricing-wrap { grid-template-columns: 1fr; }
-    }
-    .price-card {
-      background: linear-gradient(160deg, var(--bg-elev), var(--bg-elev-2));
-      border: 1px solid var(--line-strong);
-      border-radius: 18px;
-      padding: clamp(28px, 4vw, 44px);
-      position: relative;
-      overflow: hidden;
-    }
-    .price-card::before {
-      content: "";
-      position: absolute;
-      top: -80px; right: -80px;
-      width: 240px; height: 240px;
-      background: radial-gradient(circle, var(--amber-glow), transparent 60%);
-      filter: blur(20px);
-      pointer-events: none;
-    }
-    .price-tag {
-      display: flex;
-      align-items: baseline;
-      gap: 12px;
-      margin-bottom: 8px;
-    }
-    .price-amount {
-      font-family: var(--serif);
-      font-size: clamp(56px, 7vw, 84px);
-      font-weight: 400;
-      letter-spacing: -0.03em;
-      line-height: 1;
-    }
-    .price-note { color: var(--text-dim); font-size: 14px; }
-    .price-list {
-      list-style: none;
-      margin: 28px 0;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .price-list li {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      font-size: 15px;
-      color: var(--text-dim);
-    }
-    .price-list li::before {
-      content: "✓";
-      color: var(--amber);
-      font-weight: 600;
-      flex-shrink: 0;
-    }
-    .price-list li strong { color: var(--text); font-weight: 500; }
+.prose-emphasis {
+  color: var(--text-primary) !important;
+  font-weight: 500;
+}
 
-    /* ====== FAMILY ====== */
-    .family-intro {
-      max-width: 64ch;
-    }
-    .family-intro .section-title { max-width: 18ch; }
+.prose-center {
+  text-align: center;
+  margin-inline: auto;
+  max-width: 600px;
+}
 
-    .apps-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 14px;
-      margin-top: 56px;
-    }
-    .app-tile {
-      position: relative;
-      padding: 22px 20px;
-      background: var(--bg-elev);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      transition: all 0.25s ease;
-    }
-    .app-tile:hover {
-      border-color: var(--line-strong);
-      transform: translateY(-2px);
-    }
-    .app-tile.live {
-      background: linear-gradient(160deg, rgba(232, 163, 61, 0.08), var(--bg-elev));
-      border-color: var(--amber-soft);
-    }
-    .app-tile.live::after {
-      content: "";
-      position: absolute;
-      top: 18px; right: 18px;
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--amber);
-      box-shadow: 0 0 8px var(--amber);
-    }
-    .app-icon {
-      width: 36px; height: 36px;
-      border-radius: 8px;
-      background: var(--bg-elev-2);
-      border: 1px solid var(--line);
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 14px;
-      font-family: var(--serif);
-      font-size: 16px;
-      color: var(--text-dim);
-      font-style: italic;
-    }
-    .app-tile.live .app-icon {
-      background: linear-gradient(135deg, var(--amber), #C77D24);
-      color: #1A1108;
-      border-color: rgba(255,255,255,0.1);
-      font-style: normal;
-      font-weight: 600;
-    }
-    .app-name {
-      font-family: var(--serif);
-      font-size: 18px;
-      line-height: 1.1;
-      letter-spacing: -0.015em;
-      margin-bottom: 4px;
-    }
-    .app-status {
-      font-family: var(--mono);
-      font-size: 10px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-dimmer);
-    }
-    .app-tile.live .app-status { color: var(--amber); }
-    .app-tile.dev .app-status { color: var(--text-dim); }
+/* ============================
+   Media placeholders
+   ============================ */
+.media-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 28px 24px;
+  background: rgba(255,255,255,0.015);
+  border: 1px dashed rgba(245, 241, 234, 0.16);
+  border-radius: 12px;
+  text-align: center;
+  min-height: 200px;
+  position: relative;
+  overflow: hidden;
+}
 
-    /* Email signup */
-    .signup {
-      margin-top: 80px;
-      padding: clamp(32px, 4vw, 44px);
-      border: 1px solid var(--line-strong);
-      border-radius: 18px;
-      background: linear-gradient(160deg, var(--bg-elev), var(--bg));
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 32px;
-      align-items: center;
-    }
-    .signup-text h4 {
-      font-family: var(--serif);
-      font-size: clamp(22px, 2.4vw, 28px);
-      font-weight: 400;
-      line-height: 1.15;
-      letter-spacing: -0.015em;
-      margin-bottom: 8px;
-    }
-    .signup-text p { color: var(--text-dim); font-size: 14px; }
-    .signup-form {
-      display: flex;
-      gap: 8px;
-      min-width: 340px;
-    }
-    .signup-form input {
-      flex: 1;
-      padding: 12px 16px;
-      background: var(--bg-elev-2);
-      border: 1px solid var(--line-strong);
-      border-radius: 999px;
-      color: var(--text);
-      font-family: var(--sans);
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .signup-form input:focus { border-color: var(--amber); }
-    .signup-form input::placeholder { color: var(--text-dimmer); }
-    .signup-form button {
-      padding: 12px 22px;
-      background: var(--text);
-      color: var(--bg);
-      border: none;
-      border-radius: 999px;
-      font-family: var(--sans);
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .signup-form button:hover { background: var(--amber-bright); }
-    @media (max-width: 720px) {
-      .signup { grid-template-columns: 1fr; }
-      .signup-form { min-width: 0; }
-    }
+.media-placeholder::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(45deg, transparent, transparent 14px, rgba(244, 165, 68, 0.025) 14px, rgba(244, 165, 68, 0.025) 15px);
+  pointer-events: none;
+}
 
-    /* ====== FOOTER ====== */
-    footer {
-      border-top: 1px solid var(--line);
-      padding: 56px 0 36px;
-      margin-top: 40px;
-    }
-    .footer-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr;
-      gap: 48px;
-      margin-bottom: 48px;
-    }
-    @media (max-width: 720px) {
-      .footer-grid { grid-template-columns: 1fr; gap: 32px; }
-    }
-    .footer-brand p {
-      color: var(--text-dim);
-      font-size: 14px;
-      max-width: 40ch;
-      margin-top: 12px;
-    }
-    .footer-col h5 {
-      font-family: var(--mono);
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin-bottom: 16px;
-      font-weight: 500;
-    }
-    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-    .footer-col a {
-      color: var(--text);
-      font-size: 14px;
-      transition: color 0.2s;
-    }
-    .footer-col a:hover { color: var(--amber); }
+.placeholder-label {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--accent);
+  background: var(--bg-elevated);
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  position: relative;
+  z-index: 1;
+  letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
 
-    .footer-bottom {
-      padding-top: 28px;
-      border-top: 1px solid var(--line);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12px;
-      color: var(--text-dimmer);
-      font-family: var(--mono);
-      letter-spacing: 0.05em;
-    }
-    @media (max-width: 600px) {
-      .footer-bottom { flex-direction: column; gap: 12px; }
-    }
+.placeholder-label::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.5;
+}
 
-    /* ====== ANIMATIONS ====== */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.85); }
-    }
+.placeholder-note {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  max-width: 320px;
+  position: relative;
+  z-index: 1;
+  line-height: 1.5;
+}
 
-    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.8s ease, transform 0.8s ease; }
-    .reveal.in { opacity: 1; transform: translateY(0); }
+/* ============================
+   Buttons
+   ============================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 22px;
+  border-radius: 999px;
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: -0.005em;
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
 
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-      }
-      .reveal { opacity: 1; transform: none; }
-    }
+.btn:active { transform: translateY(1px); }
 
-    ::selection {
-      background: var(--amber);
-      color: var(--bg);
-    }
-  </style>
+.btn-primary {
+  background: var(--accent);
+  color: #1a1306;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.25) inset, 0 8px 24px -8px rgba(244, 165, 68, 0.5);
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.25) inset, 0 12px 32px -8px rgba(244, 165, 68, 0.6);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.btn-ghost:hover {
+  border-color: var(--border-bright);
+  background: rgba(255,255,255,0.03);
+}
+
+.btn-lg {
+  padding: 16px 26px;
+  font-size: 15.5px;
+  font-weight: 600;
+}
+
+.btn-sm {
+  padding: 9px 16px;
+  font-size: 13.5px;
+}
+
+.btn-full { width: 100%; }
+
+.btn-arrow::after {
+  content: '→';
+  font-family: var(--font-mono);
+  transition: transform 0.2s ease;
+}
+
+.btn-arrow:hover::after { transform: translateX(2px); }
+
+/* ============================
+   Keys
+   ============================ */
+.key {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  border: 1px solid var(--border-strong);
+  border-radius: 5px;
+  color: var(--text-primary);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset;
+  vertical-align: -3px;
+  line-height: 1;
+}
+
+.key.sm {
+  min-width: 18px;
+  height: 18px;
+  font-size: 10.5px;
+  padding: 0 5px;
+  border-radius: 4px;
+}
+
+.key.key-wide { padding: 0 10px; }
+.key + .key { margin-left: 3px; }
+
+/* ============================
+   Header
+   ============================ */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10, 9, 8, 0.75);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.site-header.scrolled { border-bottom-color: var(--border); }
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 16px;
+  gap: 32px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.brand-mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: linear-gradient(155deg, var(--accent) 0%, #d68427 100%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.2) inset, 0 4px 12px -4px rgba(244, 165, 68, 0.4);
+  flex-shrink: 0;
+}
+
+.brand-mark::after {
+  content: '';
+  width: 14px;
+  height: 14px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7' stroke='%231a1306' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
+.brand-name { font-size: 15.5px; }
+
+.site-nav {
+  display: flex;
+  gap: 32px;
+  font-size: 14.5px;
+  color: var(--text-secondary);
+}
+
+.site-nav a:hover { color: var(--text-primary); }
+
+/* ============================
+   Hero
+   ============================ */
+.hero {
+  padding-top: clamp(80px, 14vh, 140px);
+  padding-bottom: clamp(60px, 10vw, 120px);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-inner { position: relative; z-index: 2; }
+
+.hero .eyebrow { animation: fade-up 0.7s ease 0.05s both; }
+
+.hero-title {
+  margin-top: 8px;
+  animation: fade-up 0.8s ease 0.15s both;
+}
+
+.hero-title .line-2 {
+  display: block;
+  color: var(--accent);
+  font-style: italic;
+  font-weight: 700;
+  font-family: var(--font-display);
+}
+
+.hero-sub {
+  font-size: clamp(18px, 2vw, 22px);
+  color: var(--text-primary);
+  max-width: 640px;
+  margin: 28px auto 0;
+  line-height: 1.45;
+  font-weight: 400;
+  letter-spacing: -0.012em;
+  animation: fade-up 0.7s ease 0.3s both;
+}
+
+.hero-body {
+  font-size: 16px;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 20px auto 0;
+  line-height: 1.65;
+  animation: fade-up 0.7s ease 0.4s both;
+}
+
+.cta-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 36px;
+  animation: fade-up 0.7s ease 0.5s both;
+}
+
+.hero-microcopy {
+  margin-top: 20px;
+  font-size: 13.5px;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  letter-spacing: 0.005em;
+  animation: fade-up 0.7s ease 0.6s both;
+}
+
+/* ============================
+   Hero visual — panel mockup
+   (Replace the entire .hero-visual block with a real img/video.
+    See HTML comments for the swap.)
+   ============================ */
+.hero-visual {
+  position: relative;
+  margin-top: clamp(60px, 9vw, 110px);
+  animation: panel-rise 1.2s cubic-bezier(0.2, 0.7, 0.2, 1) 0.55s both;
+}
+
+.hero-visual::before {
+  content: '';
+  position: absolute;
+  inset: -10% -10% -30% -10%;
+  background: radial-gradient(ellipse 60% 50% at 50% 60%, var(--accent-glow), transparent 70%);
+  filter: blur(50px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.desktop-hint {
+  position: absolute;
+  inset: 8% -6% -10% -6%;
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.025), rgba(255,255,255,0.005)),
+    radial-gradient(ellipse at 30% 20%, rgba(244,165,68,0.04), transparent 50%);
+  border: 1px solid var(--border);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.desktop-hint::before, .desktop-hint::after {
+  content: '';
+  position: absolute;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.desktop-hint::before { width: 32%; height: 30%; top: 10%; left: 6%; }
+.desktop-hint::after { width: 28%; height: 25%; bottom: 8%; right: 8%; }
+
+.panel {
+  position: relative;
+  z-index: 2;
+  max-width: 720px;
+  margin-inline: auto;
+  background: linear-gradient(180deg, rgba(31, 27, 22, 0.95) 0%, rgba(22, 19, 15, 0.92) 100%);
+  backdrop-filter: blur(40px) saturate(140%);
+  -webkit-backdrop-filter: blur(40px) saturate(140%);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: var(--shadow-panel);
+  overflow: hidden;
+  text-align: left;
+}
+
+.panel-capture {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-icon-small {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: linear-gradient(155deg, var(--accent) 0%, #d68427 100%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.2) inset;
+}
+
+.panel-icon-small::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7' stroke='%231a1306' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
+.panel-input {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14.5px;
+  color: var(--text-primary);
+}
+
+.panel-input-text { letter-spacing: -0.005em; }
+
+.panel-cursor {
+  display: inline-block;
+  width: 1.5px;
+  height: 16px;
+  background: var(--accent);
+  vertical-align: -3px;
+  margin-left: 1px;
+  animation: cursor-blink 1s steps(2) infinite;
+}
+
+.panel-input-tag {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid rgba(244, 165, 68, 0.2);
+}
+
+.panel-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+
+.panel-tabs::-webkit-scrollbar { display: none; }
+
+.panel-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: 7px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.panel-tab.active {
+  background: rgba(244, 165, 68, 0.1);
+  color: var(--accent);
+  border-color: rgba(244, 165, 68, 0.18);
+}
+
+.tab-count {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  opacity: 0.7;
+}
+
+.panel-items { padding: 6px 0; }
+
+.panel-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 20px;
+  font-size: 14px;
+  transition: background 0.15s ease;
+}
+
+.panel-item.selected {
+  background: linear-gradient(90deg, rgba(244, 165, 68, 0.1), rgba(244, 165, 68, 0.04));
+  position: relative;
+}
+
+.panel-item.selected::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--accent);
+}
+
+.check-circle {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-tertiary);
+  flex-shrink: 0;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.check-circle.done {
+  background: var(--text-tertiary);
+  border-color: var(--text-tertiary);
+}
+
+.check-circle.done::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7' stroke='%2314110d' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
+.item-title { flex: 1; color: var(--text-primary); letter-spacing: -0.005em; }
+
+.item-title.done {
+  color: var(--text-tertiary);
+  text-decoration: line-through;
+  text-decoration-color: var(--text-tertiary);
+}
+
+.item-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.item-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.05);
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.panel-footer-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 20px;
+  background: rgba(0,0,0,0.25);
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  flex-wrap: wrap;
+}
+
+.hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+.hint.right { margin-left: auto; }
+
+/* ============================
+   Section: Why
+   ============================ */
+.why .prose { margin-top: 36px; }
+
+/* ============================
+   Section: Workflow
+   ============================ */
+.workflow .section-header { text-align: center; margin-inline: auto; }
+
+.workflow h2 .arrow {
+  display: inline-block;
+  color: var(--accent);
+  font-weight: 300;
+  margin: 0 0.2em;
+  transform: translateY(-0.05em);
+  font-family: var(--font-mono);
+}
+
+.workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  margin-top: 64px;
+}
+
+.workflow-step {
+  background: var(--bg-elevated);
+  padding: 36px 32px;
+  position: relative;
+  transition: background 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+
+.workflow-step:hover { background: var(--bg-elevated-2); }
+
+.step-number {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: 0.12em;
+  margin-bottom: 24px;
+}
+
+.step-keys {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 22px;
+  min-height: 28px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.step-keys .key {
+  min-width: 28px;
+  height: 28px;
+  font-size: 13px;
+}
+
+.step-keys .key-group {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.step-keys .seq-arrow {
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  opacity: 0.55;
+  margin: 0 6px;
+}
+
+.workflow-step h3 {
+  margin-bottom: 12px;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.workflow-step p {
+  color: var(--text-secondary);
+  font-size: 15.5px;
+  line-height: 1.6;
+}
+
+/* ============================
+   Section: Features
+   ============================ */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+  margin-top: 64px;
+}
+
+.feature-card {
+  grid-column: span 3;
+  padding: 32px 32px 30px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  transition: border-color 0.25s, transform 0.25s, background 0.25s;
+  display: flex;
+  flex-direction: column;
+}
+
+.feature-card:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-elevated-2);
+  transform: translateY(-2px);
+}
+
+.feature-card.feature-large {
+  grid-column: span 6;
+  padding: 44px 40px;
+  background:
+    linear-gradient(135deg, rgba(244, 165, 68, 0.04), transparent 60%),
+    var(--bg-elevated);
+  border-color: rgba(244, 165, 68, 0.16);
+  text-align: center;
+}
+
+.feature-large .feature-text {
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+.feature-card:not(.feature-large) { grid-column: span 2; }
+
+.feature-card .media-placeholder.feature-media {
+  min-height: 140px;
+  margin-top: auto;
+  background: rgba(0,0,0,0.2);
+}
+
+.feature-card:not(.feature-large) > img {
+  width: 100%;
+  margin-top: auto;
+  border-radius: 12px;
+}
+
+.feature-card:not(.feature-large) p { margin-bottom: 22px; }
+
+.feature-card h3 {
+  margin-bottom: 10px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.018em;
+}
+
+.feature-card.feature-large h3 {
+  font-size: 1.625rem;
+  margin-bottom: 14px;
+}
+
+.feature-card p {
+  color: var(--text-secondary);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.feature-card .key { margin-right: 1px; }
+
+/* ============================
+   Section: Built Right
+   ============================ */
+.built-right {
+  background: linear-gradient(180deg, transparent, rgba(244, 165, 68, 0.025) 50%, transparent);
+}
+
+.trust-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  margin-top: 56px;
+}
+
+.trust-col {
+  position: relative;
+  padding-top: 28px;
+  border-top: 1px solid var(--border-strong);
+}
+
+.trust-col::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 32px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.trust-col h3 {
+  font-size: 1rem;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.trust-col p {
+  color: var(--text-secondary);
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+/* ============================
+   Section: From the Developer
+   ============================ */
+.developer { text-align: center; }
+
+.developer-inner {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.developer h2 {
+  font-size: clamp(1.625rem, 3.2vw, 2.25rem);
+  letter-spacing: -0.022em;
+}
+
+.developer .prose { margin-top: 28px; }
+
+.developer .prose p { font-size: 17px; }
+
+.dev-sign {
+  margin-top: 40px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+/* ============================
+   Section: Pricing
+   ============================ */
+.pricing { text-align: center; }
+
+.pricing .section-header { margin-bottom: 56px; }
+
+.pricing-card {
+  position: relative;
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+.pricing-glow {
+  position: absolute;
+  inset: -40px;
+  background: radial-gradient(ellipse 50% 60% at 50% 50%, var(--accent-glow), transparent 70%);
+  filter: blur(50px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.pricing-card-inner {
+  position: relative;
+  z-index: 1;
+  padding: 40px;
+  background: linear-gradient(180deg, rgba(31, 27, 22, 0.85), rgba(22, 19, 15, 0.95));
+  border: 1px solid rgba(244, 165, 68, 0.2);
+  border-radius: 20px;
+  text-align: left;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset, 0 30px 60px -20px rgba(0,0,0,0.6);
+}
+
+.pricing-name {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 22px;
+}
+
+.pricing-price {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.price {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 3.5rem;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.price-unit {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+.pricing-list {
+  margin-bottom: 32px;
+  padding: 24px 0 0;
+  border-top: 1px solid var(--border-strong);
+}
+
+.pricing-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 15px;
+  color: var(--text-secondary);
+  padding: 7px 0;
+  letter-spacing: -0.005em;
+}
+
+.pricing-list li::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 3px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7' stroke='%23f4a544' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
+/* ============================
+   Section: FAQ
+   ============================ */
+.faq .section-header { margin-bottom: 48px; }
+
+.faq-list { border-top: 1px solid var(--border); }
+
+.faq-item {
+  border-bottom: 1px solid var(--border);
+  padding: 0;
+}
+
+.faq-item summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 0;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 500;
+  font-size: 17px;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  transition: color 0.15s;
+}
+
+.faq-item summary::-webkit-details-marker { display: none; }
+
+.faq-item summary:hover { color: var(--accent); }
+
+.faq-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.3s ease, border-color 0.2s, background 0.2s;
+}
+
+.faq-icon::before, .faq-icon::after {
+  content: '';
+  position: absolute;
+  background: var(--text-secondary);
+  transition: background 0.2s, transform 0.3s;
+}
+
+.faq-icon::before { width: 9px; height: 1.5px; }
+.faq-icon::after { width: 1.5px; height: 9px; }
+
+.faq-item[open] .faq-icon {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.faq-item[open] .faq-icon::before,
+.faq-item[open] .faq-icon::after { background: #1a1306; }
+
+.faq-item[open] .faq-icon::after { transform: rotate(90deg); opacity: 0; }
+
+.faq-answer {
+  padding: 0 0 28px 0;
+  max-width: 640px;
+  color: var(--text-secondary);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+/* ============================
+   Section: What's next
+   ============================ */
+.whats-next { text-align: left; }
+
+.whats-next .prose { margin-top: 32px; }
+
+.notify-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 44px;
+  margin-bottom: 56px;
+  max-width: 480px;
+}
+
+.notify-input {
+  flex: 1;
+  padding: 13px 18px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  color: var(--text-primary);
+  font-size: 15px;
+  transition: border-color 0.15s;
+  outline: none;
+}
+
+.notify-input::placeholder { color: var(--text-tertiary); }
+
+.notify-input:focus { border-color: var(--accent); }
+
+.notify-success {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  font-size: 14px;
+  margin-top: 44px;
+  margin-bottom: 56px;
+  padding: 13px 18px;
+  background: var(--accent-dim);
+  border: 1px solid rgba(244, 165, 68, 0.2);
+  border-radius: 12px;
+  max-width: 480px;
+  letter-spacing: -0.005em;
+}
+
+.pipeline {
+  margin-top: 0;
+  border-top: 1px solid var(--border);
+}
+
+.pipeline-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.pipeline-name {
+  font-weight: 500;
+  font-size: 17px;
+  letter-spacing: -0.015em;
+}
+
+.pipeline-status {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pipeline-status.status-live { color: var(--accent); }
+
+.pipeline-status.status-live::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 0 rgba(244, 165, 68, 0.6);
+  animation: pulse-dot 2s infinite;
+}
+
+/* ============================
+   Footer
+   ============================ */
+.site-footer {
+  padding: 80px 0 48px;
+  border-top: 1px solid var(--border);
+  margin-top: 60px;
+}
+
+.footer-cta {
+  text-align: center;
+  margin-bottom: 80px;
+}
+
+.footer-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+
+.footer-brand { display: inline-flex; align-items: center; gap: 10px; }
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+
+.footer-links a:hover { color: var(--accent); }
+
+.footer-sign {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.01em;
+}
+
+/* ============================
+   Reveal animations
+   ============================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.reveal.in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes panel-rise {
+  from { opacity: 0; transform: translateY(40px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes cursor-blink { to { opacity: 0; } }
+
+@keyframes pulse-dot {
+  0%   { box-shadow: 0 0 0 0 rgba(244, 165, 68, 0.6); }
+  70%  { box-shadow: 0 0 0 8px rgba(244, 165, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(244, 165, 68, 0); }
+}
+
+/* ============================
+   Responsive
+   ============================ */
+@media (max-width: 900px) {
+  .site-nav { display: none; }
+  .workflow-grid { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+  .feature-card:not(.feature-large) { grid-column: span 1; }
+  .feature-card.feature-large {
+    grid-column: span 2;
+  }
+  .trust-grid { grid-template-columns: repeat(2, 1fr); gap: 36px 32px; }
+}
+
+@media (max-width: 600px) {
+  body { font-size: 16px; }
+  .header-inner { gap: 16px; }
+  .brand-name { display: none; }
+  .features-grid { grid-template-columns: 1fr; gap: 12px; }
+  .feature-card:not(.feature-large) { grid-column: span 1; }
+  .feature-card.feature-large { grid-column: span 1; }
+  .feature-card { padding: 24px 24px 22px; }
+  .trust-grid { grid-template-columns: 1fr; gap: 28px; }
+  .workflow-step { padding: 32px 26px; }
+  .pricing-card-inner { padding: 32px 26px; }
+  .panel-footer-bar { gap: 10px; font-size: 10px; }
+  .hint.right { margin-left: 0; }
+  .hero-microcopy { font-size: 12px; }
+  .notify-form { flex-direction: column; }
+  .notify-input { width: 100%; }
+  .pipeline-status { font-size: 11px; }
+  .pricing-price .price { font-size: 3rem; }
+  .footer-meta { flex-direction: column; align-items: flex-start; gap: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; }
+}
+</style>
 </head>
 <body>
 
-  <!-- ==================== HEADER ==================== -->
-  <header id="site-header">
-    <div class="wrap">
-      <nav class="nav">
-        <a href="#" class="brand" aria-label="SideDoor home">
-          <svg class="brand-mark" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <!-- "Cracked door" mark: doorway with amber glow spilling out -->
-            <defs>
-              <linearGradient id="doorGlow" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stop-color="#FFC97A"/>
-                <stop offset="100%" stop-color="#E8A33D"/>
-              </linearGradient>
-            </defs>
-            <rect x="4" y="3" width="20" height="22" rx="2" stroke="#F4ECE0" stroke-opacity="0.4" stroke-width="1.4" fill="none"/>
-            <path d="M14 3 L20 3 L20 25 L14 25 Z" fill="url(#doorGlow)"/>
-            <line x1="14" y1="3" x2="14" y2="25" stroke="#FFC97A" stroke-width="1.4"/>
-          </svg>
-          SideDoor
-        </a>
-        <div class="nav-links">
-          <a href="#features" class="hide-mobile">Features</a>
-          <a href="#family" class="hide-mobile">The Family</a>
-          <a href="#pricing" class="hide-mobile">Pricing</a>
-          <a href="https://apps.apple.com/us/app/sidedoor-tasks/id6759468350?mt=12" class="btn-app-store">
-            Get on Mac App Store
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 7l10 0M17 7v10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          </a>
+<!-- ==================== Header ==================== -->
+<header class="site-header" id="header">
+  <div class="container header-inner">
+    <a href="#top" class="brand">
+      <span class="brand-mark"></span>
+      <span class="brand-name">SideDoor Tasks</span>
+    </a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="#workflow">Workflow</a>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a href="https://apps.apple.com/us/app/sidedoor-tasks/id6759468350?mt=12" class="btn btn-primary btn-sm">
+      Get on the App Store
+    </a>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ==================== Hero ==================== -->
+<section class="hero">
+  <div class="container hero-inner">
+    <div class="eyebrow">Now on the Mac App Store · macOS 14+</div>
+    <h1 class="hero-title">
+      Apple Reminders.
+      <span class="line-2">Faster.</span>
+    </h1>
+    <p class="hero-sub">
+      Capture, organize, edit, and complete reminders from a keyboard-first floating panel on your Mac.
+    </p>
+    <p class="hero-body">
+      No need to open the full Reminders app. No window switching. No new database. Summon a panel from anywhere on macOS, capture or edit a task entirely from the keyboard, and dismiss it without ever touching the mouse.
+    </p>
+
+    <div class="cta-row">
+      <a href="https://apps.apple.com/us/app/sidedoor-tasks/id6759468350?mt=12" class="btn btn-primary btn-lg btn-arrow">
+        Download on the Mac App Store
+      </a>
+      <a href="#workflow" class="btn btn-ghost btn-lg">
+        See how it works
+      </a>
+    </div>
+
+    <p class="hero-microcopy">Try it free for 14 days · Unlock once for $4.99 · No subscription, ever</p>
+
+    <!--
+      ============================================================
+      HERO MEDIA
+      ============================================================
+    -->
+      <div class="hero-visual">
+        <video src="images/hero-demo.mov"
+               autoplay loop muted playsinline
+               poster="images/hero-poster.jpg"
+               style="width:100%; border-radius:16px;"></video>
+      </div>
+</section>
+
+<!-- ==================== Why it exists ==================== -->
+<section class="section why" id="why">
+  <div class="container narrow">
+    <div class="section-header center reveal">
+      <div class="eyebrow">Why it exists</div>
+      <h2>Reminders is a heavy door for a two-second thought.</h2>
+    </div>
+    <div class="prose prose-center reveal">
+      <p>The full Reminders app is fine when you have time to stop. SideDoor Tasks is for the other ninety-five percent of the day — when stopping is exactly what you're trying to avoid.</p>
+      <p>It's for the everyday Mac actions that should take seconds: jotting down a task, checking what's next, moving something to the right list, or clearing a reminder that's already done.</p>
+      <p class="prose-emphasis">Your tasks still live in Apple Reminders. Your attention stays where it belongs.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Workflow ==================== -->
+<section class="section workflow" id="workflow">
+  <div class="container">
+    <div class="section-header center reveal">
+      <div class="eyebrow">The workflow</div>
+      <h2>Summon <span class="arrow">→</span> Act <span class="arrow">→</span> Dismiss</h2>
+      <p class="section-intro">SideDoor Tasks doesn't replace Apple Reminders. It just gets you in and out faster.</p>
+      <p class="section-intro">When you have a thought to capture, a detail to edit, or a task to mark done — hit the global hotkey, take action, dismiss the panel, and pick up exactly where you left off.</p>
+    </div>
+
+    <div class="workflow-grid reveal">
+
+      <div class="workflow-step">
+        <div class="step-number">01 — SUMMON</div>
+
+        <div class="step-keys">
+          <span class="key">⌃</span><span class="key">⌥</span><span class="key key-wide">Space</span>
         </div>
+        <h3>Press the hotkey.</h3>
+        <p>From anywhere in macOS, the panel appears wherever you've set it. Remap the shortcut to whatever fits your hand.</p>
+      </div>
+
+      <div class="workflow-step">
+        <div class="step-number">02 — ACT</div>
+
+        <div class="step-keys">
+          <span class="key-group">
+            <span class="key">⌘</span><span class="key">2</span>
+          </span>
+          <span class="seq-arrow">→</span>
+          <span class="key-group">
+            <span class="key">↓</span>
+          </span>
+          <span class="seq-arrow">→</span>
+          <span class="key-group">
+            <span class="key key-wide">Space</span>
+          </span>
+        </div>
+        <h3>Do the thing.</h3>
+        <p>Capture a new task, edit an existing one, mark something complete, or jump between lists and projects — entirely from the keyboard.</p>
+      </div>
+
+      <div class="workflow-step">
+        <div class="step-number">03 — DISMISS</div>
+
+        <div class="step-keys">
+          <span class="key key-wide">esc</span>
+        </div>
+        <h3>The panel disappears.</h3>
+        <p>You're back where you started, with your task already synced to Apple Reminders.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Features ==================== -->
+<section class="section features" id="features">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="eyebrow">Features</div>
+      <h2>Built for the keyboard. Tuned for Reminders.</h2>
+      <p class="section-intro">A small set of features, each one focused on the same thing — getting tasks in and out of Apple Reminders without slowing you down.</p>
+    </div>
+
+    <div class="features-grid">
+
+      <article class="feature-card feature-large reveal">
+        <div class="feature-text">
+          <h3>A hotkey from anywhere.</h3>
+          <p>Press <span class="key">⌃</span><span class="key">⌥</span><span class="key">Space</span> anywhere in macOS to bring up the panel. Remap the shortcut to whatever fits your hand. Press <span class="key">esc</span> and the panel disappears. You're back exactly where you were.</p>
+        </div>
+      </article>
+
+      <article class="feature-card reveal">
+        <h3>Keyboard-first, all the way down.</h3>
+        <p>Modifier keys jump between lists and projects. Single keys complete tasks, change dates, set priorities. A footer hint bar shows what's available so you never have to look anything up.</p>
+        <!-- Replace with: <img src="images/feature-keyboard.png" alt="Keyboard controls and shortcut hints in SideDoor Tasks"> -->
+         <img src="images/feature-keyboard.png" alt="Keyboard controls and shortcut hints in SideDoor Tasks">
+        <!-- <div class="media-placeholder feature-media">
+          <span class="placeholder-label">images/feature-keyboard.png</span>
+          <span class="placeholder-note">Keyboard controls and shortcut hints</span>
+        </div> -->
+      </article>
+
+      <article class="feature-card reveal">
+        <h3>Training mode for the shortcuts.</h3>
+        <p>A built-in mode walks you through the shortcut system until the keys become muscle memory instead of a cheat sheet.</p>
+         <img src="images/feature-training.png" alt="Training mode walking through shortcuts">
+      </article>
+
+      <article class="feature-card reveal">
+        <h3>The smart lists you actually use.</h3>
+        <p>Overdue. Today. Tomorrow. This Week. Each one a single keypress away, so the things that are actually due don't get buried.</p>
+         <img src="images/feature-smart-lists.png" alt="Smart lists for overdue, today, tomorrow, and this week">
+      </article>
+
+      <article class="feature-card reveal">
+        <h3>Projects when you want structure.</h3>
+        <p>Group lists into projects with custom icons and colors. Switch to a Kanban view for the ones that need it. Everything syncs back to Apple Reminders the moment you make a change.</p>
+         <img src="images/feature-projects.png" alt="The Kanban projects view">
+
+      </article>
+
+      <article class="feature-card reveal">
+        <h3>Tuned to your setup.</h3>
+        <p>Choose the panel size, where it appears on screen, and whether it follows you between displays. Pick icons and colors for projects and lists.</p>
+        
+         <img src="images/feature-customize.png" alt="SideDoor Tasks customization settings">
+
+      </article>
+
+      <article class="feature-card reveal">
+        <h3>Export when you need it.</h3>
+        <p>One command writes your reminders out to a file you control. Backup, archive, or just keep a paper trail.</p>
+        
+         <img src="images/feature-export.png" alt="Exporting reminders from SideDoor Tasks">
+
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Built Right ==================== -->
+<section class="section built-right" id="built-right">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="eyebrow">Built right</div>
+      <h2>A native Mac app, behaving like one.</h2>
+      <p class="section-intro">No Electron. No web view. No telemetry. SwiftUI and AppKit on Apple Silicon, talking directly to the iCloud database you already have.</p>
+    </div>
+
+    <div class="trust-grid reveal">
+      <div class="trust-col">
+        <h3>Signed &amp; Notarized</h3>
+        <p>Shipped through the Mac App Store. Sandboxed, reviewed, and Apple-verified.</p>
+      </div>
+      <div class="trust-col">
+        <h3>Apple Silicon native</h3>
+        <p>SwiftUI + AppKit, compiled for M-series. Cold launch in under a second.</p>
+      </div>
+      <div class="trust-col">
+        <h3>Your iCloud database</h3>
+        <p>Uses EventKit and the Reminders store you already sync. No migration, no new account.</p>
+      </div>
+      <div class="trust-col">
+        <h3>Local-first, zero telemetry</h3>
+        <p>No SideDoor account. No analytics pings. Your reminders never leave Apple's servers.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== From the Developer ==================== -->
+<section class="section developer" id="developer">
+  <div class="container narrow">
+    <div class="developer-inner reveal">
+
+      <div class="eyebrow">From the developer</div>
+      <h2>Built for people who notice workflow friction.</h2>
+      <div class="prose prose-center">
+        <p>SideDoor Tasks was built around a simple annoyance — opening a separate app just to capture or clear one reminder breaks flow more than it should.</p>
+        <p>The goal isn't to reinvent task management. It's to make the system you already use faster at the exact moments when speed matters.</p>
+      </div>
+      <!-- <div class="dev-sign">— Shaun Hurley</div> -->
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Pricing ==================== -->
+<section class="section pricing" id="pricing">
+  <div class="container narrow">
+    <div class="section-header center reveal">
+      <div class="eyebrow">Pricing</div>
+      <h2>Pay once. Keep it forever.</h2>
+    </div>
+
+    <div class="pricing-card reveal">
+      <div class="pricing-glow" aria-hidden="true"></div>
+      <div class="pricing-card-inner">
+        <div class="pricing-name">SideDoor Tasks</div>
+        <div class="pricing-price">
+          <span class="price">$4.99</span>
+          <span class="price-unit">one-time unlock</span>
+        </div>
+        <ul class="pricing-list">
+          <li>14-day free trial — full features, no credit card</li>
+          <li>Unlimited reminders, lists, and devices</li>
+          <li>All future SideDoor Tasks updates included</li>
+          <li>Direct email support from the developer</li>
+        </ul>
+        <a href="https://apps.apple.com/us/app/sidedoor-tasks/id6759468350?mt=12" class="btn btn-primary btn-lg btn-full btn-arrow">
+          Download on the Mac App Store
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FAQ ==================== -->
+<section class="section faq" id="faq">
+  <div class="container narrow">
+    <div class="section-header reveal">
+      <div class="eyebrow">Common questions</div>
+      <h2>Before you download.</h2>
+    </div>
+
+    <div class="faq-list reveal">
+
+      <details class="faq-item">
+        <summary>
+          <span>Does this replace Apple Reminders?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </summary>
+        <div class="faq-answer">No. SideDoor Tasks reads and writes to your existing Reminders database through Apple's EventKit. Everything you do shows up in Reminders on every device you sync with iCloud. If you ever stop using SideDoor Tasks, your data is exactly where you left it.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          <span>Why not just use the full Reminders app?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </summary>
+        <div class="faq-answer">Use it whenever you have a moment to actually stop. SideDoor Tasks is for the in-between moments — when you just need to capture, edit, or finish a reminder without leaving what you're already working on.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          <span>Will my tasks sync to my other Apple devices?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </summary>
+        <div class="faq-answer">Yes. SideDoor uses the Reminders store you already sync through iCloud. Anything you capture on your Mac shows up in Reminders on every device signed in to the same Apple ID — iPhone, iPad, Apple Watch, anywhere Reminders runs.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          <span>Do I need a SideDoor account?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </summary>
+        <div class="faq-answer">No. There's no SideDoor account, sign-up, or login of any kind. The app uses the Apple ID you already use for iCloud, and that's it.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          <span>Is there a subscription?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </summary>
+        <div class="faq-answer">No. $4.99 unlocks the app permanently. Future updates to SideDoor Tasks are included.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          <span>Do you collect any data?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </summary>
+        <div class="faq-answer">None. No accounts, no analytics, no servers. Everything is local to your Mac and synced through your own iCloud.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          <span>What if Apple changes the Reminders API?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </summary>
+        <div class="faq-answer">Every macOS beta gets tested. If something breaks, fixing it is the first thing I work on.</div>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          <span>What macOS versions are supported?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </summary>
+        <div class="faq-answer">macOS 14 (Sonoma) and later. Native on Apple Silicon.</div>
+      </details>
+
+    </div>
+  </div>
+</section>
+
+<!-- ==================== What's Next ==================== -->
+<section class="section whats-next" id="whats-next">
+  <div class="container narrow">
+    <div class="section-header reveal">
+      <div class="eyebrow">What's next</div>
+      <h2><em>Tasks</em> is just the first door.</h2>
+      <div class="prose">
+        <p>SideDoor is a small family of Mac utilities being built around the same idea — a quick way into the Apple apps you already use, without breaking your focus.</p>
+        <p>Calendar, Files, and Contacts are next, with more in the queue.</p>
+        <!-- <p>Drop your email if you want to know when each one ships. No newsletter, no marketing list, no spam.</p> -->
+      </div>
+    </div>
+
+    <!--
+      ============================================================
+      EMAIL FORM SETUP (Formspree)
+      ------------------------------------------------------------
+      Wired for Formspree. To make it work:
+
+      1. Sign up at https://formspree.io (free tier covers 50/mo)
+      2. Create a new form. Name it something like "SideDoor signups."
+      3. Formspree gives you an endpoint like https://formspree.io/f/abc123xyz
+      4. Replace YOUR_FORM_ID below with that endpoint's last segment.
+      5. Verify your destination email in Formspree's dashboard.
+
+      Each signup will email you and accumulate in the Formspree
+      dashboard. Export the list as CSV whenever you want to commit
+      it back to the repo.
+      ============================================================
+    -->
+    <!-- <form class="notify-form reveal"
+          id="notify-form"
+          action="https://formspree.io/f/YOUR_FORM_ID"
+          method="POST">
+      <input type="email" name="email" class="notify-input" placeholder="your email" required aria-label="Your email address">
+      <input type="hidden" name="_subject" value="New SideDoor signup">
+      <button type="submit" class="btn btn-primary btn-lg">Notify me</button>
+    </form>
+
+    <div class="pipeline reveal">
+      <div class="pipeline-row">
+        <span class="pipeline-name">Tasks</span>
+        <span class="pipeline-status status-live">Available now</span>
+      </div>
+      <div class="pipeline-row">
+        <span class="pipeline-name">Calendar</span>
+        <span class="pipeline-status">In development</span>
+      </div>
+      <div class="pipeline-row">
+        <span class="pipeline-name">Files</span>
+        <span class="pipeline-status">In development</span>
+      </div>
+      <div class="pipeline-row">
+        <span class="pipeline-name">Contacts</span>
+        <span class="pipeline-status">Planned</span>
+      </div>
+      <div class="pipeline-row">
+        <span class="pipeline-name">More</span>
+        <span class="pipeline-status">Stay tuned</span>
+      </div>
+    </div> -->
+  </div>
+</section>
+
+</main>
+
+<!-- ==================== Footer ==================== -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-cta">
+      <a href="https://apps.apple.com/us/app/sidedoor-tasks/id6759468350?mt=12" class="btn btn-primary btn-lg btn-arrow">
+        Download SideDoor Tasks on the Mac App Store
+      </a>
+    </div>
+    <div class="footer-meta">
+      <div class="footer-brand">
+        <span class="brand-mark"></span>
+        <span class="brand-name">SideDoor Tasks</span>
+      </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="#">Support</a>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Changelog</a>
       </nav>
+      <div class="footer-sign">Built by Shaun Hurley · © 2026</div>
     </div>
-  </header>
+  </div>
+</footer>
 
-  <!-- ==================== HERO ==================== -->
-  <section class="hero">
-    <div class="wrap">
-      <div class="eyebrow">
-        <span class="pulse"></span>
-        Now in the Mac App Store
-      </div>
+<script>
+  // Header border on scroll
+  const header = document.getElementById('header');
+  const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 8);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
 
-      <h1 class="headline">
-        A keyboard shortcut to <em>Apple&nbsp;Reminders</em>.
-      </h1>
-
-      <p class="hero-sub">
-        <strong>SideDoor Tasks</strong> is a menu bar companion for Apple Reminders. Summon a panel from anywhere on macOS, capture or edit a task entirely from the keyboard, and dismiss it without touching the mouse.
-      </p>
-
-      <div class="key-strip" aria-hidden="true">
-        <span class="key">⌃</span>
-        <span class="key-plus">+</span>
-        <span class="key">⌥</span>
-        <span class="key-plus">+</span>
-        <span class="key wide">Space</span>
-      </div>
-
-      <div class="cta-row">
-        <a href="https://apps.apple.com/us/app/sidedoor-tasks/id6759468350?mt=12" class="btn-primary">
-          <svg viewBox="0 0 384 512" fill="currentColor" aria-hidden="true"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zM254.4 91.5c33.1-39.3 30.1-75.1 29.1-88-29.2 1.7-63 19.9-82.3 42.3-21.3 24-33.8 53.7-31.1 87.3 31.6 2.4 60.4-13.9 84.3-41.6z"/></svg>
-          Get on Mac App Store
-        </a>
-        <a href="#features" class="btn-secondary">
-          See it work
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-      </div>
-
-      <!-- ============= HERO STAGE PLACEHOLDER ============= -->
-      <div class="stage">
-        <div class="stage-frame">
-          <div class="stage-placeholder">
-            <div class="ph-icon">▶</div>
-            <div class="ph-label">Hero loop · 6–10s</div>
-            <div class="ph-detail">
-              Looped GIF or MP4 showing the panel summon flow: user in Safari → presses ⌃⌥Space → panel appears centered → types "Email Sarah Monday 9am" → presses Enter → panel dismisses cleanly.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ==================== MANIFESTO ==================== -->
-  <section class="manifesto">
-    <div class="wrap">
-      <p class="manifesto-text reveal">
-        <span class="quiet">Apple Reminders is fine.</span> Opening it isn't. <span class="accent">SideDoor Tasks</span> lives one shortcut away — so adding a task doesn't cost you context.
-      </p>
-    </div>
-  </section>
-
-  <!-- ==================== FEATURES ==================== -->
-  <section id="features">
-    <div class="wrap">
-      <div class="reveal" style="margin-bottom: 72px;">
-        <div class="section-eyebrow">What you get</div>
-        <h2 class="section-title">Six things <em>worth&nbsp;noting</em>.</h2>
-      </div>
-
-      <div class="features">
-
-        <!-- Feature 1 -->
-        <div class="feature reveal">
-          <div class="feature-text">
-            <div class="feature-number">01 / Summon</div>
-            <h3>One <em>global shortcut</em>. Works from anywhere.</h3>
-            <p>Press <kbd>⌃⌥Space</kbd> in any app — Safari, Xcode, Notion, full-screen video — and the panel appears centered, focused, ready for a keystroke. Remap the hotkey to whatever you'd rather press.</p>
-            <p>Hit <kbd>Esc</kbd> when you're done. The panel disappears. You're back where you were.</p>
-          </div>
-          <div class="feature-visual">
-            <div class="visual-frame">
-              <div class="visual-placeholder">
-                <div class="vp-label">Screenshot · 01</div>
-                <div class="vp-name">Panel summoned over desktop</div>
-                <div class="vp-desc">SideDoor panel centered on screen, capture field focused, faint blur of a Safari window behind it.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Feature 2 -->
-        <div class="feature reverse reveal">
-          <div class="feature-text">
-            <div class="feature-number">02 / Capture</div>
-            <h3>Type a sentence. <em>Get a task.</em></h3>
-            <p>"Email Sarah Monday at 9 about Q3 review" parses the date, the time, the list. No clicking through pickers, no fields to tab through. Press <kbd>↵</kbd> and it's saved.</p>
-            <p>The same natural language Apple Reminders supports, in a window that's already focused.</p>
-          </div>
-          <div class="feature-visual">
-            <div class="visual-frame">
-              <div class="visual-placeholder">
-                <div class="vp-label">Screenshot · 02</div>
-                <div class="vp-name">Natural language capture</div>
-                <div class="vp-desc">Capture field mid-type with "Email Sarah Monday 9am" and the parsed date/time/list shown as inline pills below.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Feature 3 -->
-        <div class="feature reveal">
-          <div class="feature-text">
-            <div class="feature-number">03 / Navigate</div>
-            <h3>Smart lists and <em>projects</em>, side by side.</h3>
-            <p>Today, This Week, Scheduled, Flagged — all one keypress away. Projects get a kanban view with To-do / Doing / Done columns, navigable entirely with arrow keys.</p>
-            <p>Modifier keys are categories: <kbd>⌘</kbd> jumps between lists, <kbd>⌃⌥</kbd> jumps between projects. The whole app is one mental model.</p>
-          </div>
-          <div class="feature-visual">
-            <div class="visual-frame wide">
-              <div class="visual-placeholder">
-                <div class="vp-label">Screenshot · 03</div>
-                <div class="vp-name">This Week + Kanban projects</div>
-                <div class="vp-desc">Composite or side-by-side: the This Week smart list on the left, the Kanban projects view on the right, both showing keyboard focus rings.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Feature 4 -->
-        <div class="feature reverse reveal">
-          <div class="feature-text">
-            <div class="feature-number">04 / Edit</div>
-            <h3>Edit anything <em>without the mouse.</em></h3>
-            <p>Drill into a task, retitle it, change its list, push the date, add a note, toggle a flag — all from the keyboard. A footer hint bar shows you what every modifier does, so you never have to remember.</p>
-          </div>
-          <div class="feature-visual">
-            <div class="visual-frame">
-              <div class="visual-placeholder">
-                <div class="vp-label">Screenshot · 04</div>
-                <div class="vp-name">Edit task view + footer hints</div>
-                <div class="vp-desc">An edit task screen with the modifier hints overlay visible at the bottom, showing what each key does.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Feature 5 -->
-        <div class="feature reveal">
-          <div class="feature-text">
-            <div class="feature-number">05 / Learn</div>
-            <h3>A built-in <em>training mode.</em></h3>
-            <p>Most apps tell you the shortcut and hope you remember it. SideDoor Tasks has a practice room: it prompts you with a shortcut, you press it, it teaches you the next one. Like piano scales for keyboard productivity.</p>
-          </div>
-          <div class="feature-visual">
-            <div class="visual-frame">
-              <div class="visual-placeholder">
-                <div class="vp-label">Screenshot · 05</div>
-                <div class="vp-name">Shortcut Training mode</div>
-                <div class="vp-desc">Training view mid-session: a prompt to press a specific shortcut combo, with progress indicators and a "next" preview.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Feature 6 -->
-        <div class="feature reverse reveal">
-          <div class="feature-text">
-            <div class="feature-number">06 / Trust</div>
-            <h3>No new data silo. <em>Ever.</em></h3>
-            <p>Everything you do in SideDoor Tasks is just an Apple Reminders task underneath. Quit the app and your work is still in Reminders, Calendar, Siri, the Watch — wherever Apple already syncs it.</p>
-            <p>No accounts, no telemetry, no servers. iCloud handles the rest.</p>
-          </div>
-          <div class="feature-visual">
-            <div class="visual-frame">
-              <div class="visual-placeholder">
-                <div class="vp-label">Screenshot · 06</div>
-                <div class="vp-name">Continuity across devices</div>
-                <div class="vp-desc">A still showing a task added in SideDoor Tasks appearing in the iOS Reminders app or Apple Watch — or a clean diagram of "SideDoor Tasks → Apple Reminders → all your devices."</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- ==================== PRICING ==================== -->
-  <section id="pricing">
-    <div class="wrap">
-      <div class="pricing-wrap">
-        <div class="reveal">
-          <div class="section-eyebrow">Pricing</div>
-          <h2 class="section-title">Pay <em>once</em>. Own it.</h2>
-          <p class="section-sub">No subscription. No account. No data collected. Try it free for fourteen days — if it sticks, unlock the full app from inside the app or the Mac App Store.</p>
-        </div>
-
-        <div class="price-card reveal">
-          <div class="price-tag">
-            <span class="price-amount">$4.99</span>
-            <span class="price-note">one-time · Mac App Store</span>
-          </div>
-          <ul class="price-list">
-            <li><strong>14-day free trial</strong> — no card required, no nag screens</li>
-            <li><strong>Free updates</strong> for the lifetime of the app</li>
-            <li><strong>iCloud sync</strong> for settings and shortcuts</li>
-            <li><strong>No subscription, no account, no telemetry</strong></li>
-          </ul>
-          <a href="https://apps.apple.com/us/app/sidedoor-tasks/id6759468350?mt=12" class="btn-primary" style="width: 100%; justify-content: center;">
-            <svg viewBox="0 0 384 512" fill="currentColor" aria-hidden="true"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zM254.4 91.5c33.1-39.3 30.1-75.1 29.1-88-29.2 1.7-63 19.9-82.3 42.3-21.3 24-33.8 53.7-31.1 87.3 31.6 2.4 60.4-13.9 84.3-41.6z"/></svg>
-            Download from the Mac App Store
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ==================== FAMILY ==================== -->
-  <section id="family" style="border-top: 1px solid var(--line);">
-    <div class="wrap">
-      <div class="family-intro reveal">
-        <div class="section-eyebrow">The bigger picture</div>
-        <h2 class="section-title">SideDoor Tasks is <em>the first.</em></h2>
-        <p class="section-sub">
-          SideDoor is a small family of macOS apps. Each one is a faster side door into something the system already does well — keyboard-driven, menu-bar-native, never trying to replace the app it sits next to. Tasks is the first to ship. A few more are in active development. The rest are sketches in a notebook.
-        </p>
-      </div>
-
-      <div class="apps-grid reveal">
-        <!-- LIVE -->
-        <a href="https://apps.apple.com/us/app/sidedoor-tasks/id6759468350?mt=12" class="app-tile live">
-          <div class="app-icon">✓</div>
-          <div class="app-name">Tasks</div>
-          <div class="app-status">Available now</div>
-        </a>
-
-        <!-- IN DEVELOPMENT -->
-        <div class="app-tile dev">
-          <div class="app-icon">C</div>
-          <div class="app-name">Calendar</div>
-          <div class="app-status">In development</div>
-        </div>
-        <div class="app-tile dev">
-          <div class="app-icon">F</div>
-          <div class="app-name">Files</div>
-          <div class="app-status">In development</div>
-        </div>
-        <div class="app-tile dev">
-          <div class="app-icon">@</div>
-          <div class="app-name">Contacts</div>
-          <div class="app-status">In development</div>
-        </div>
-
-        <!-- EXPLORING -->
-        <div class="app-tile"><div class="app-icon">📷</div><div class="app-name">Photos</div><div class="app-status">Exploring</div></div>
-        <div class="app-tile"><div class="app-icon">♪</div><div class="app-name">Music</div><div class="app-status">Exploring</div></div>
-        <div class="app-tile"><div class="app-icon">☼</div><div class="app-name">Weather</div><div class="app-status">Exploring</div></div>
-        <div class="app-tile"><div class="app-icon">⌘</div><div class="app-name">Browser</div><div class="app-status">Exploring</div></div>
-        <div class="app-tile"><div class="app-icon">N</div><div class="app-name">Notes</div><div class="app-status">Exploring</div></div>
-        <div class="app-tile"><div class="app-icon">M</div><div class="app-name">Messages</div><div class="app-status">Exploring</div></div>
-        <div class="app-tile"><div class="app-icon">✉</div><div class="app-name">Mail</div><div class="app-status">Exploring</div></div>
-        <div class="app-tile"><div class="app-icon">H</div><div class="app-name">Habits</div><div class="app-status">Exploring</div></div>
-        <div class="app-tile"><div class="app-icon">~</div><div class="app-name">Soundscapes</div><div class="app-status">Exploring</div></div>
-        <div class="app-tile"><div class="app-icon">B</div><div class="app-name">Bookmarks</div><div class="app-status">Exploring</div></div>
-        <div class="app-tile"><div class="app-icon">⎘</div><div class="app-name">Clipboard</div><div class="app-status">Exploring</div></div>
-        <div class="app-tile"><div class="app-icon">◐</div><div class="app-name">Focus</div><div class="app-status">Exploring</div></div>
-        <div class="app-tile"><div class="app-icon">S</div><div class="app-name">Slack</div><div class="app-status">Exploring</div></div>
-        <div class="app-tile"><div class="app-icon">◊</div><div class="app-name">Nutrition</div><div class="app-status">Exploring</div></div>
-        <div class="app-tile"><div class="app-icon">🔑</div><div class="app-name">Authenticator</div><div class="app-status">Exploring</div></div>
-      </div>
-
-      <!-- Email signup -->
-      <div class="signup reveal">
-        <div class="signup-text">
-          <h4>Hear about the next one.</h4>
-          <p>One email when each app ships. No newsletter, no promos, no other use of your address.</p>
-        </div>
-        <form class="signup-form" action="#" method="POST" onsubmit="handleSignup(event)">
-          <input type="email" name="email" placeholder="you@example.com" required aria-label="Email address">
-          <button type="submit">Notify me</button>
-        </form>
-      </div>
-    </div>
-  </section>
-
-  <!-- ==================== FOOTER ==================== -->
-  <footer>
-    <div class="wrap">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <a href="#" class="brand">
-            <svg class="brand-mark" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <defs>
-                <linearGradient id="doorGlow2" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stop-color="#FFC97A"/>
-                  <stop offset="100%" stop-color="#E8A33D"/>
-                </linearGradient>
-              </defs>
-              <rect x="4" y="3" width="20" height="22" rx="2" stroke="#F4ECE0" stroke-opacity="0.4" stroke-width="1.4" fill="none"/>
-              <path d="M14 3 L20 3 L20 25 L14 25 Z" fill="url(#doorGlow2)"/>
-              <line x1="14" y1="3" x2="14" y2="25" stroke="#FFC97A" stroke-width="1.4"/>
-            </svg>
-            SideDoor
-          </a>
-          <p>A small family of keyboard-first apps for macOS. Built by an independent developer, sold once, owned forever.</p>
-        </div>
-        <div class="footer-col">
-          <h5>SideDoor Tasks</h5>
-          <ul>
-            <li><a href="#features">Features</a></li>
-            <li><a href="#pricing">Pricing</a></li>
-            <li><a href="https://apps.apple.com/us/app/sidedoor-tasks/id6759468350?mt=12">Mac App Store</a></li>
-            <li><a href="#family">The Family</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h5>Legal</h5>
-          <ul>
-            <li><a href="/privacy">Privacy Policy</a></li>
-            <li><a href="/terms">Terms of Use</a></li>
-            <li><a href="mailto:hello@sidedoor.app">hello@sidedoor.app</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <span>© 2026 SideDoor · Made in Florida</span>
-        <span>Not affiliated with Apple Inc.</span>
-      </div>
-    </div>
-  </footer>
-
-  <script>
-    // Sticky header border on scroll
-    const header = document.getElementById('site-header');
-    const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 8);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-
-    // Reveal on intersection
+  // Reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('in');
-          io.unobserve(e.target);
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.12, rootMargin: '0px 0px -80px 0px' });
-    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+    reveals.forEach(el => io.observe(el));
+  } else {
+    reveals.forEach(el => el.classList.add('in'));
+  }
 
-    // Email signup placeholder handler — replace with your provider
-    function handleSignup(e) {
+  // FAQ: single-open behavior
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.addEventListener('toggle', () => {
+      if (item.open) {
+        document.querySelectorAll('.faq-item').forEach(other => {
+          if (other !== item) other.open = false;
+        });
+      }
+    });
+  });
+
+  // Notify form — submits to Formspree, keeps the user on-page
+  const form = document.getElementById('notify-form');
+  if (form) {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const form = e.target;
-      const email = form.email.value;
-      // TODO: wire to Buttondown, ConvertKit, Loops, etc.
-      // For now just acknowledge.
-      form.innerHTML = '<p style="color: var(--amber); font-size: 14px; padding: 12px 0;">Thanks. You\'re on the list.</p>';
-      console.log('Signup placeholder:', email);
-    }
-  </script>
+      const input = form.querySelector('.notify-input');
+      const button = form.querySelector('button[type="submit"]');
+
+      if (!input.value || !input.value.includes('@')) {
+        input.focus();
+        input.style.borderColor = '#e07b3a';
+        setTimeout(() => { input.style.borderColor = ''; }, 1200);
+        return;
+      }
+
+      const originalLabel = button.textContent;
+      button.textContent = 'Sending…';
+      button.disabled = true;
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'Accept': 'application/json' }
+        });
+
+        if (response.ok) {
+          const success = document.createElement('div');
+          success.className = 'notify-success';
+          success.textContent = `Got it. We'll email ${input.value} when the next door opens.`;
+          form.replaceWith(success);
+        } else {
+          button.textContent = originalLabel;
+          button.disabled = false;
+          input.style.borderColor = '#e07b3a';
+          console.error('Form submission failed', response.status);
+        }
+      } catch (err) {
+        button.textContent = originalLabel;
+        button.disabled = false;
+        input.style.borderColor = '#e07b3a';
+        console.error('Form network error', err);
+      }
+    });
+  }
+</script>
+
 </body>
 </html>
