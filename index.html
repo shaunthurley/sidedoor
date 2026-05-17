@@ -1168,6 +1168,7 @@ h3 {
   gap: 8px;
   margin-top: 44px;
   margin-bottom: 56px;
+  margin-inline: auto;
   max-width: 480px;
 }
 
@@ -1198,6 +1199,7 @@ h3 {
   border: 1px solid rgba(244, 165, 68, 0.2);
   border-radius: 12px;
   max-width: 480px;
+  margin-inline: auto;
   letter-spacing: -0.005em;
 }
 
@@ -1730,26 +1732,9 @@ h3 {
       </div>
     </div>
 
-    <!--
-      ============================================================
-      EMAIL FORM SETUP (Formspree)
-      ------------------------------------------------------------
-      Wired for Formspree. To make it work:
-
-      1. Sign up at https://formspree.io (free tier covers 50/mo)
-      2. Create a new form. Name it something like "SideDoor signups."
-      3. Formspree gives you an endpoint like https://formspree.io/f/abc123xyz
-      4. Replace YOUR_FORM_ID below with that endpoint's last segment.
-      5. Verify your destination email in Formspree's dashboard.
-
-      Each signup will email you and accumulate in the Formspree
-      dashboard. Export the list as CSV whenever you want to commit
-      it back to the repo.
-      ============================================================
-    -->
       <form class="notify-form reveal"
       id="notify-form"
-      action="https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec"
+      action="https://script.google.com/macros/s/AKfycbzDSo8ka2W9P-XAwX7ADafPW2aK1ltMuDTbghSkBdzPIkvAD8B60-1-0g4vTFN2KqNFUQ/exec"
       method="POST">
   <input type="email" name="email" class="notify-input" placeholder="your email" required aria-label="Your email address">
   <input type="hidden" name="_subject" value="New SideDoor signup">
@@ -1851,7 +1836,9 @@ h3 {
     });
   });
 
-  // Notify form — submits to Formspree, keeps the user on-page
+  
+// Notify form — submits to Apps Script. Uses no-cors because Apps Script's
+  // CORS handling is unreliable; we trust the network instead of reading the response.
   const form = document.getElementById('notify-form');
   if (form) {
     form.addEventListener('submit', async (e) => {
@@ -1859,7 +1846,9 @@ h3 {
       const input = form.querySelector('.notify-input');
       const button = form.querySelector('button[type="submit"]');
 
-      if (!input.value || !input.value.includes('@')) {
+      // Basic email sanity check
+      const email = input.value.trim();
+      if (!email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) === false) {
         input.focus();
         input.style.borderColor = '#e07b3a';
         setTimeout(() => { input.style.borderColor = ''; }, 1200);
@@ -1871,23 +1860,36 @@ h3 {
       button.disabled = true;
 
       try {
-        const response = await fetch(form.action, {
+        await fetch(form.action, {
           method: 'POST',
+          mode: 'no-cors',
           body: new FormData(form),
-          headers: { 'Accept': 'application/json' }
         });
 
-        if (response.ok) {
-          const success = document.createElement('div');
-          success.className = 'notify-success';
-          success.textContent = `Got it. We'll email ${input.value} when the next door opens.`;
-          form.replaceWith(success);
-        } else {
-          button.textContent = originalLabel;
-          button.disabled = false;
-          input.style.borderColor = '#e07b3a';
-          console.error('Form submission failed', response.status);
-        }
+        // Clear the field, reset the button — keep the form in place so they
+        // can submit another address if they want.
+        input.value = '';
+        input.blur();
+        button.textContent = originalLabel;
+        button.disabled = false;
+
+        // Remove any previous thank-you so repeat submissions don't stack.
+        const existing = document.getElementById('notify-success');
+        if (existing) existing.remove();
+
+        // Insert the thank-you message right below the form.
+        const success = document.createElement('div');
+        success.id = 'notify-success';
+        success.className = 'notify-success';
+        success.innerHTML = `
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:16px;">✓</span>
+            <span>Thanks! We'll email <strong></strong> the moment the next SideDoor app ships.</span>
+          </div>
+        `;
+        // Use textContent for the email so any odd characters can't break the markup.
+        success.querySelector('strong').textContent = email;
+        form.insertAdjacentElement('afterend', success);
       } catch (err) {
         button.textContent = originalLabel;
         button.disabled = false;
@@ -1896,6 +1898,8 @@ h3 {
       }
     });
   }
+
+
 </script>
 
 </body>
