@@ -1038,88 +1038,188 @@
       /* ============================
    Section: Features
    ============================ */
-      .features-grid {
-        display: grid;
-        grid-template-columns: repeat(6, 1fr);
-        gap: 16px;
+
+      /* Row 1 — Hotkey banner (full-width, accented) */
+      .feature-banner {
         margin-top: 64px;
-      }
-
-      .feature-card {
-        grid-column: span 3;
-        padding: 32px 32px 30px;
-        background: var(--bg-elevated);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        transition:
-          border-color 0.25s,
-          transform 0.25s,
-          background 0.25s;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .feature-card:hover {
-        border-color: var(--border-strong);
-        background: var(--bg-elevated-2);
-        transform: translateY(-2px);
-      }
-
-      .feature-card.feature-large {
-        grid-column: span 6;
         padding: 44px 40px;
         background:
           linear-gradient(135deg, rgba(244, 165, 68, 0.04), transparent 60%),
           var(--bg-elevated);
-        border-color: rgba(244, 165, 68, 0.16);
+        border: 1px solid rgba(244, 165, 68, 0.16);
+        border-radius: 16px;
         text-align: center;
+        transition:
+          border-color 0.25s,
+          background 0.25s;
       }
 
-      .feature-large .feature-text {
+      .feature-banner:hover {
+        border-color: rgba(244, 165, 68, 0.24);
+      }
+
+      .feature-banner-text {
         max-width: 720px;
         margin-inline: auto;
       }
 
-      .feature-card:not(.feature-large) {
-        grid-column: span 2;
-      }
-
-      .feature-card .media-placeholder.feature-media {
-        min-height: 140px;
-        margin-top: auto;
-        background: rgba(0, 0, 0, 0.2);
-      }
-
-      .feature-card:not(.feature-large) > img {
-        width: 100%;
-        margin-top: auto;
-        border-radius: 12px;
-      }
-
-      .feature-card:not(.feature-large) p {
-        margin-bottom: 22px;
-      }
-
-      .feature-card h3 {
-        margin-bottom: 10px;
-        font-size: 1.25rem;
+      .feature-banner h3 {
+        font-size: 1.625rem;
+        margin-bottom: 14px;
         font-weight: 600;
         letter-spacing: -0.018em;
       }
 
-      .feature-card.feature-large h3 {
-        font-size: 1.625rem;
-        margin-bottom: 14px;
-      }
-
-      .feature-card p {
+      .feature-banner p {
         color: var(--text-secondary);
         font-size: 15px;
         line-height: 1.6;
       }
 
-      .feature-card .key {
+      .feature-banner .key {
         margin-right: 1px;
+      }
+
+      /* Quiet section label — separates "getting in" from "what you do inside" */
+      .features-divider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: clamp(70px, 9vw, 110px) auto clamp(50px, 7vw, 80px);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--text-tertiary);
+        gap: 18px;
+        max-width: 520px;
+      }
+
+      .features-divider::before,
+      .features-divider::after {
+        content: "";
+        height: 1px;
+        flex: 1;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--border-strong),
+          transparent
+        );
+      }
+
+      /* Rows 2–5 — Alternating image / text */
+      .feature-rows {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(80px, 10vw, 130px);
+      }
+
+      .feature-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: clamp(40px, 6vw, 80px);
+        align-items: center;
+      }
+
+      .feature-row--reversed .feature-row-text {
+        order: 2;
+      }
+
+      .feature-row-text h3 {
+        font-size: clamp(1.625rem, 2.6vw, 2rem);
+        font-weight: 700;
+        margin-bottom: 18px;
+        letter-spacing: -0.022em;
+        line-height: 1.15;
+      }
+
+      .feature-row-text p {
+        color: var(--text-secondary);
+        font-size: 17px;
+        line-height: 1.65;
+      }
+
+      .feature-row-image {
+        position: relative;
+      }
+
+      .feature-row-image::before {
+        content: "";
+        position: absolute;
+        inset: -8% -6% -8% -6%;
+        background: radial-gradient(
+          ellipse 55% 45% at 50% 50%,
+          rgba(244, 165, 68, 0.04),
+          transparent 70%
+        );
+        filter: blur(40px);
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      .feature-row-image img {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        border-radius: 14px;
+        border: 1px solid var(--border-strong);
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.04) inset,
+          0 30px 60px -30px rgba(0, 0, 0, 0.6);
+      }
+
+      /* Row 6 — "Also included" two-up, no screenshots, secondary weight */
+      .features-also {
+        margin-top: clamp(90px, 11vw, 140px);
+        /* padding-top: 36px; */
+        /* border-top: 1px solid var(--border); */
+      }
+
+      .features-also-eyebrow {
+        font-family: var(--font-mono);
+        font-size: 11.5px;
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-tertiary);
+        margin-bottom: 32px;
+      }
+
+      .features-also-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: clamp(32px, 5vw, 64px);
+      }
+
+      .also-item {
+        position: relative;
+        padding-top: 24px;
+        border-top: 1px solid var(--border-strong);
+      }
+
+      .also-item::before {
+        content: "";
+        position: absolute;
+        top: -1px;
+        left: 0;
+        width: 32px;
+        height: 1px;
+        background: var(--accent);
+      }
+
+      .also-item h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        letter-spacing: -0.018em;
+      }
+
+      .also-item p {
+        color: var(--text-secondary);
+        font-size: 14.5px;
+        line-height: 1.6;
       }
 
       /* ============================
@@ -1618,14 +1718,16 @@
         .workflow-grid {
           grid-template-columns: 1fr;
         }
-        .features-grid {
-          grid-template-columns: repeat(2, 1fr);
+        .feature-row {
+          grid-template-columns: 1fr;
+          gap: 28px;
         }
-        .feature-card:not(.feature-large) {
-          grid-column: span 1;
+        .feature-row--reversed .feature-row-text {
+          order: 0;
         }
-        .feature-card.feature-large {
-          grid-column: span 2;
+        .features-also-grid {
+          grid-template-columns: 1fr;
+          gap: 28px;
         }
         .trust-grid {
           grid-template-columns: repeat(2, 1fr);
@@ -1657,18 +1759,18 @@
         .site-header .brand-name {
           display: none;
         }
-        .features-grid {
-          grid-template-columns: 1fr;
+        .feature-banner {
+          padding: 28px 24px;
+        }
+        .feature-row-text h3 {
+          font-size: 1.5rem;
+        }
+        .feature-row-text p {
+          font-size: 16px;
+        }
+        .features-divider {
+          letter-spacing: 0.14em;
           gap: 12px;
-        }
-        .feature-card:not(.feature-large) {
-          grid-column: span 1;
-        }
-        .feature-card.feature-large {
-          grid-column: span 1;
-        }
-        .feature-card {
-          padding: 24px 24px 22px;
         }
         .trust-grid {
           grid-template-columns: 1fr;
@@ -1929,101 +2031,118 @@
             </p>
           </div>
 
-          <div class="features-grid">
-            <article class="feature-card feature-large reveal">
-              <div class="feature-text">
-                <h3>A hotkey from anywhere.</h3>
+          <!-- Row 1 — Getting in: the hotkey banner -->
+          <article class="feature-banner reveal">
+            <div class="feature-banner-text">
+              <h3>A hotkey from anywhere.</h3>
+              <p>
+                Press <span class="key">⌃</span><span class="key">⌥</span
+                ><span class="key">Space</span> anywhere in macOS to bring up
+                the panel. Remap the shortcut to whatever fits your hand.
+                Press <span class="key">esc</span> and the panel disappears.
+                You're back exactly where you were.
+              </p>
+            </div>
+          </article>
+
+          <!-- Quiet section label — bridges "getting in" to "what you do inside" -->
+          <div class="features-divider reveal">Once the panel is up</div>
+
+          <!-- Rows 2–5 — Alternating image / text -->
+          <div class="feature-rows">
+            <!-- Row 2: text | image -->
+            <article class="feature-row reveal">
+              <div class="feature-row-text">
+                <h3>Keyboard-first, all the way down.</h3>
                 <p>
-                  Press <span class="key">⌃</span><span class="key">⌥</span
-                  ><span class="key">Space</span> anywhere in macOS to bring up
-                  the panel. Remap the shortcut to whatever fits your hand.
-                  Press <span class="key">esc</span> and the panel disappears.
-                  You're back exactly where you were.
+                  Modifier keys jump between lists and projects. Single keys
+                  complete tasks, change dates, set priorities. A footer hint
+                  bar shows what's available so you never have to look anything
+                  up.
                 </p>
+              </div>
+              <div class="feature-row-image">
+                <img
+                  src="images/feature-keyboard.png"
+                  alt="Keyboard controls and shortcut hints in SideDoor Tasks"
+                />
               </div>
             </article>
 
-            <article class="feature-card reveal">
-              <h3>Keyboard-first, all the way down.</h3>
-              <p>
-                Modifier keys jump between lists and projects. Single keys
-                complete tasks, change dates, set priorities. A footer hint bar
-                shows what's available so you never have to look anything up.
-              </p>
-              <!-- Replace with: <img src="images/feature-keyboard.png" alt="Keyboard controls and shortcut hints in SideDoor Tasks"> -->
-              <img
-                src="images/feature-keyboard.png"
-                alt="Keyboard controls and shortcut hints in SideDoor Tasks"
-              />
-              <!-- <div class="media-placeholder feature-media">
-          <span class="placeholder-label">images/feature-keyboard.png</span>
-          <span class="placeholder-note">Keyboard controls and shortcut hints</span>
-        </div> -->
+            <!-- Row 3: image | text (reversed) -->
+            <article class="feature-row feature-row--reversed reveal">
+              <div class="feature-row-text">
+                <h3>Training mode for the shortcuts.</h3>
+                <p>
+                  A built-in mode walks you through the shortcut system until
+                  the keys become muscle memory instead of a cheat sheet.
+                </p>
+              </div>
+              <div class="feature-row-image">
+                <img
+                  src="images/feature-training.png"
+                  alt="Training mode walking through shortcuts"
+                />
+              </div>
             </article>
 
-            <article class="feature-card reveal">
-              <h3>Training mode for the shortcuts.</h3>
-              <p>
-                A built-in mode walks you through the shortcut system until the
-                keys become muscle memory instead of a cheat sheet.
-              </p>
-              <img
-                src="images/feature-training.png"
-                alt="Training mode walking through shortcuts"
-              />
+            <!-- Row 4: text | image -->
+            <article class="feature-row reveal">
+              <div class="feature-row-text">
+                <h3>The smart lists you actually use.</h3>
+                <p>
+                  Overdue. Today. Tomorrow. This Week. Each one a single
+                  keypress away, so the things that are actually due don't get
+                  buried.
+                </p>
+              </div>
+              <div class="feature-row-image">
+                <img
+                  src="images/feature-smart-lists.png"
+                  alt="Smart lists for overdue, today, tomorrow, and this week"
+                />
+              </div>
             </article>
 
-            <article class="feature-card reveal">
-              <h3>The smart lists you actually use.</h3>
-              <p>
-                Overdue. Today. Tomorrow. This Week. Each one a single keypress
-                away, so the things that are actually due don't get buried.
-              </p>
-              <img
-                src="images/feature-smart-lists.png"
-                alt="Smart lists for overdue, today, tomorrow, and this week"
-              />
+            <!-- Row 5: image | text (reversed) -->
+            <article class="feature-row feature-row--reversed reveal">
+              <div class="feature-row-text">
+                <h3>Projects when you want structure.</h3>
+                <p>
+                  Group lists into projects with custom icons and colors.
+                  Switch to a Kanban view for the ones that need it. Everything
+                  syncs back to Apple Reminders the moment you make a change.
+                </p>
+              </div>
+              <div class="feature-row-image">
+                <img
+                  src="images/feature-projects.png"
+                  alt="The Kanban projects view"
+                />
+              </div>
             </article>
+          </div>
 
-            <article class="feature-card reveal">
-              <h3>Projects when you want structure.</h3>
-              <p>
-                Group lists into projects with custom icons and colors. Switch
-                to a Kanban view for the ones that need it. Everything syncs
-                back to Apple Reminders the moment you make a change.
-              </p>
-              <img
-                src="images/feature-projects.png"
-                alt="The Kanban projects view"
-              />
-            </article>
-
-            <article class="feature-card reveal">
-              <h3>Tuned to your setup.</h3>
-              <p>
-                Choose the panel size, where it appears on screen, and whether
-                it follows you between displays. Pick icons and colors for
-                projects and lists.
-              </p>
-
-              <img
-                src="images/feature-customize.png"
-                alt="SideDoor Tasks customization settings"
-              />
-            </article>
-
-            <article class="feature-card reveal">
-              <h3>Export when you need it.</h3>
-              <p>
-                One command writes your reminders out to a file you control.
-                Backup, archive, or just keep a paper trail.
-              </p>
-
-              <img
-                src="images/feature-export.png"
-                alt="Exporting reminders from SideDoor Tasks"
-              />
-            </article>
+          <!-- Row 6 — Also included: Tuned + Export, no screenshots -->
+          <div class="features-also reveal">
+            <!-- <div class="features-also-eyebrow">Also included</div> -->
+            <div class="features-also-grid">
+              <div class="also-item">
+                <h3>Tuned to your setup.</h3>
+                <p>
+                  Choose the panel size, where it appears on screen, and
+                  whether it follows you between displays. Pick icons and
+                  colors for projects and lists.
+                </p>
+              </div>
+              <div class="also-item">
+                <h3>Export when you need it.</h3>
+                <p>
+                  One command writes your reminders out to a file you control.
+                  Backup, archive, or just keep a paper trail.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
